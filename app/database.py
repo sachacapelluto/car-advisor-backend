@@ -4,12 +4,17 @@ from app.config import settings
 
 def get_supabase_client() -> Client:
     """Create and return a Supabase client"""
-    if not settings.SUPABASE_URL or not settings.SUPABASE_ANON_KEY:
+    # Prioritize service_role key for backend operations
+    supabase_key = settings.SUPABASE_SERVICE_KEY if settings.SUPABASE_SERVICE_KEY else settings.SUPABASE_ANON_KEY
+    
+    if not settings.SUPABASE_URL or not supabase_key:
         raise ValueError("Supabase credentials not configured")
+    
+    print(f"🔑 Using Supabase key type: {'SERVICE_ROLE' if settings.SUPABASE_SERVICE_KEY else 'ANON'}")
     
     return create_client(
         supabase_url=settings.SUPABASE_URL,
-        supabase_key=settings.SUPABASE_ANON_KEY
+        supabase_key=supabase_key
     )
 
 # Create the client
