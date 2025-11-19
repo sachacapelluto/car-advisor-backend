@@ -33,21 +33,31 @@ settings = Settings()
 # Validate that required settings are present
 def validate_settings():
     """Validate that all required environment variables are set"""
+    
+    # DEBUG: Print ALL environment variables
+    print("=" * 50)
+    print("🔍 ALL ENVIRONMENT VARIABLES:")
+    for key, value in os.environ.items():
+        if len(value) > 20:
+            print(f"  {key} = {value[:20]}...")
+        else:
+            print(f"  {key} = {value}")
+    print("=" * 50)
+    
     required_vars = {
         "SUPABASE_URL": settings.SUPABASE_URL,
         "SUPABASE_ANON_KEY": settings.SUPABASE_ANON_KEY,
         "OPENAI_API_KEY": settings.OPENAI_API_KEY,
     }
     
+    print(f"📊 Settings values loaded:")
+    print(f"  SUPABASE_URL = {settings.SUPABASE_URL[:30] if settings.SUPABASE_URL else 'EMPTY'}...")
+    print(f"  SUPABASE_ANON_KEY = {settings.SUPABASE_ANON_KEY[:30] if settings.SUPABASE_ANON_KEY else 'EMPTY'}...")
+    print(f"  OPENAI_API_KEY = {settings.OPENAI_API_KEY[:20] if settings.OPENAI_API_KEY else 'EMPTY'}...")
+    
     missing_vars = [var for var, value in required_vars.items() if not value]
     
     if missing_vars:
-        # Print all env vars for debugging
-        print("🔍 Environment variables available:")
-        for key in os.environ.keys():
-            if any(x in key for x in ["SUPABASE", "OPENAI", "API"]):
-                print(f"  - {key}")
-        
         raise ValueError(
             f"Missing required environment variables: {', '.join(missing_vars)}"
         )
