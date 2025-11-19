@@ -15,6 +15,7 @@ class ChatRequest(BaseModel):
     """Model for chat request"""
     message: str
     active_filters: Optional[Dict] = None
+    conversation_history: Optional[List[Dict]] = []  # ← AJOUT ICI
     
     class Config:
         json_schema_extra = {
@@ -23,11 +24,15 @@ class ChatRequest(BaseModel):
                 "active_filters": {
                     "max_price": 40000,
                     "fuel_type": "electric"
-                }
+                },
+                "conversation_history": [  # ← AJOUT ICI
+                    {"role": "user", "content": "Hello"},
+                    {"role": "assistant", "content": "Hi! How can I help?"}
+                ]
             }
         }
 
-# Response model
+# Response model (inchangé)
 class ChatResponse(BaseModel):
     """Model for chat response"""
     message: str
@@ -42,35 +47,31 @@ class ChatResponse(BaseModel):
 @router.post("/", response_model=ChatResponse)
 async def chat_with_advisor(request: ChatRequest):
     """
-    Chat with the AI car advisor
-    
-    This endpoint processes user messages using RAG (Retrieval Augmented Generation):
-    1. Extracts filters from the message using AI
-    2. Combines with active manual filters
-    3. Searches for matching cars in the database
-    4. Generates a natural language response
-    5. Suggests comparison if user seems satisfied
-    
-    **Example request:**
-```json
-    {
-        "message": "I need a family car with good fuel economy",
-        "active_filters": {
-            "max_price": 30000
-        }
-    }
-```
+    Chat with the AI car advisor with conversation history
     """
     try:
-        # Process the message using RAG
+        print("=== DEBUG: Chat request received ===")
+        print(f"Message: {request.message}")
+        print(f"Active filters: {request.active_filters}")
+        print(f"Conversation history length: {len(request.conversation_history) if request.conversation_history else 0}")
+        
+        # Process the message using RAG with history
         result = await process_chat_message(
             user_message=request.message,
-            active_filters=request.active_filters
+            active_filters=request.active_filters,
+            conversation_history=request.conversation_history
         )
         
+        print("=== DEBUG: Response generated successfully ===")
         return result
         
     except Exception as e:
+        print(f"=== ERROR in chat_with_advisor ===")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error message: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
         raise HTTPException(
             status_code=500, 
             detail=f"Error processing chat message: {str(e)}"
