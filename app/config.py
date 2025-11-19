@@ -25,6 +25,7 @@ class Settings:
         "http://127.0.0.1:5173",
         "https://lovable.dev",
         "https://1dbbe1bb-01c6-4e10-853b-0c1fc130e9db.lovableproject.com"
+        "https://id-preview--1dbbe1bb-01c6-4e10-853b-0c1fc130e9db.lovable.app", 
         "*"
     ]
 
